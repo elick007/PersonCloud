@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_upload"
+            android:icon="@drawable/ic_nav_upload"
+            android:title="上传文件" />
+        <item
+            android:id="@+id/nav_upload_image"
+            android:icon="@drawable/ic_nav_upload_image"
+            android:title="上传相册"/>
+        <item
+            android:id="@+id/nav_newDir"
+            android:icon="@drawable/ic_nav_newdir"
+            android:title="新建文件夹" />
+
+
+    </group>
+</menu>
