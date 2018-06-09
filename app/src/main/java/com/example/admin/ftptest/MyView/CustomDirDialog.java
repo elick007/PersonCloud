@@ -32,7 +32,9 @@ public class CustomDirDialog extends Dialog implements View.OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Window window = getWindow();
-        window.setGravity(Gravity.CENTER); // 此处可以设置dialog显示的位置为居中
+        if (window != null) {
+            window.setGravity(Gravity.CENTER); // 此处可以设置dialog显示的位置为居中
+        }
         setContentView(layoutResID);
         WindowManager windowManager = ((Activity) context).getWindowManager();
         Display display = windowManager.getDefaultDisplay();

@@ -3,6 +3,7 @@ package com.example.admin.ftptest;
 import android.Manifest;
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -53,6 +54,7 @@ import com.example.admin.ftptest.MyView.SortWayPopup;
 import org.apache.commons.net.ftp.FTPFile;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -105,6 +107,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     private List<FTPFile> list = new ArrayList<>();
     private FileAdapter fileAdapter;//适配器
     private boolean isSuccess = false;
+    @SuppressLint("SimpleDateFormat")
     private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//转化时间为yyyy-MM-dd HH:mm:ss格式
     private StringBuilder currentPath = new StringBuilder();//路径名，当前为根目录
     private SortWayPopup sortWayPopup;
@@ -113,21 +116,34 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     // @BindView(R.id.nav_userName) TextView navUserName;
     private SortWayFuntion sortWayFuntion = new SortWayFuntion();//排序方法
     //handler更新ui
-    private Handler handler = new Handler() {
+
+    private static class MyHandler extends Handler {
+        private final WeakReference<MainActivity> mActivity;
+
+        private MyHandler(MainActivity activity) {
+            mActivity = new WeakReference<>(activity);
+        }
+
         @Override
         public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case 1:  //移动文件成功
-                    dismissLongClickPopup();
-                    showPathFiles(currentPath.toString());
-                    break;
-                case 3: //重命名文件成功
-                    dismissLongClickPopup();
-                    showPathFiles(currentPath.toString());
-                    break;
+            MainActivity activity = mActivity.get();
+            if (activity != null) {
+                // ...
+                switch (msg.what) {
+                    case 1:  //移动文件成功
+                        activity.dismissLongClickPopup();
+                        activity.showPathFiles();
+                        break;
+                    case 3: //重命名文件成功
+                        activity.dismissLongClickPopup();
+                        activity.showPathFiles();
+                        break;
+                }
             }
         }
-    };
+    }
+
+    private final MyHandler handler = new MyHandler(this);
 
     //记录文件排序方式
     enum FileSortWay {
@@ -193,7 +209,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                                                     switch (ftp.creatNewDir(newDirName)) {
                                                         case 0:
                                                             showToast("创建成功");
-                                                            showPathFiles(currentPath.toString());
+                                                            showPathFiles();
                                                             break;
                                                         case 1:
                                                             showToast("创建失败");
@@ -253,26 +269,28 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                     Uri uri = data.getData();
                     if (DocumentsContract.isDocumentUri(this, uri)) {
                         String docId = DocumentsContract.getDocumentId(uri);
-                        if ("com.android.providers.media.documents".equals(uri.getAuthority())) {
+                        if ("com.android.providers.media.documents".equals(uri != null ? uri.getAuthority() : null)) {
                             String id = docId.split(":")[1];//解析出数字格式ID
                             String selection = MediaStore.Images.Media._ID + "=" + id;
                             imagePath = getImagePath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, selection);
-                        } else if ("com.android.provider.downloads.documents".equals(uri.getAuthority())) {
+                        } else if ("com.android.provider.downloads.documents".equals(uri != null ? uri.getAuthority() : null)) {
                             Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.valueOf(docId));
                             imagePath = getImagePath(contentUri, null);
                         }
-                    } else if ("content".equalsIgnoreCase(uri.getScheme())) {
+                    } else if ("content".equalsIgnoreCase(uri != null ? uri.getScheme() : null)) {
                         imagePath = getImagePath(uri, null);
-                    } else if ("file".equalsIgnoreCase(uri.getScheme())) {
-                        imagePath = uri.getPath();
+                    } else if ("file".equalsIgnoreCase(uri != null ? uri.getScheme() : null)) {
+                        imagePath = uri != null ? uri.getPath() : null;
                     }
                     Notification notification = new NotificationCompat.Builder(this)
-                            .setContentTitle(imagePath.substring(imagePath.lastIndexOf("/") + 1, imagePath.length() - 1))
+                            .setContentTitle(imagePath.substring((imagePath != null ? imagePath.lastIndexOf("/") : 0) + 1, (imagePath != null ? imagePath.length() : 0) - 1))
                             .setContentText("上传中")
                             .setSmallIcon(R.drawable.ic_file)
                             .build();
                     NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-                    manager.notify(1, notification);
+                    if (manager != null) {
+                        manager.notify(1, notification);
+                    }
                     new UploadTask(ftp, imagePath, currentPath.toString(), this).execute();
                 }
                 break;
@@ -308,9 +326,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         View footerView = LayoutInflater.from(this).inflate(R.layout.footerview_layout, recyclerView, false);
         footerRefreshTime = footerView.findViewById(R.id.footer_fresh_time);
         fileAdapter.setFooterView(footerView);
-
-        //获取已登录的用户名和密码
-        Intent intent = getIntent();
         //显示登录的用户名
         if (ServiceState.loginName == null) {
             userName.setText("未登录");
@@ -326,7 +341,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                     }
                     //登录成功则更新列表
                     if (isSuccess) {
-                        showPathFiles(currentPath.toString());
+                        showPathFiles();
                     }
                 }
             }).start();
@@ -373,9 +388,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                     }
                     //点击返回上一层
                     if (position == 1) {
-                        if (currentPath.toString() != "/") {
-                            currentPath.delete(currentPath.lastIndexOf("/"),currentPath.length());
-                            showPathFiles(currentPath.toString());
+                        if (!currentPath.toString().equals("/")) {
+                            currentPath.delete(currentPath.lastIndexOf("/"), currentPath.length());
+                            showPathFiles();
                             ftp.setCurrentPath(currentPath.toString());
                             showToast(currentPath.toString());
                         }
@@ -383,19 +398,16 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                     }
                     //点击的是文件夹便列出文件夹里的文件
                     if (list.get(position - 1).isDirectory()) {
-                        if (isShowCheck) {
-                            return;
-                        } else {
+                        if (!isShowCheck) {
                             if (currentPath.toString().equals("/")) {
                                 currentPath.append(list.get(position - 1).getName());
                             } else {
-                                currentPath.append("/" + list.get(position - 1).getName());
+                                currentPath.append("/").append(list.get(position - 1).getName());
                             }
-                            showPathFiles(currentPath.toString());
+                            showPathFiles();
                             ftp.setCurrentPath(currentPath.toString());
                             showToast(currentPath.toString());
                         }
-                        return;
                     }
                 } catch (IndexOutOfBoundsException e) {
                     e.printStackTrace();
@@ -410,6 +422,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                 }
             }
 
+            @SuppressLint("SetTextI18n")
             @Override
             public void onCheckBoxChange(View itemView, int position, boolean b) {
                 if (b) {
@@ -429,7 +442,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                         fileAdapter.notifyDataSetChanged();
                     }
                 }
-                longClickFileCount.setText("已选中" + checkList.size() + "个");
+                longClickFileCount.setText("已选中" + (checkList != null ? checkList.size() : 0) + "个");
                 Log.e("have", checkList.toString());
             }
         });
@@ -460,10 +473,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                     sortWay.setText("按大小降序");
                     break;
             }
-            showPathFiles(currentPath.toString());//重新进入当前文件夹刷新列表
+            showPathFiles();//重新进入当前文件夹刷新列表
         }
     };
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
@@ -484,7 +498,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                 } else {
                     Date date = new Date(System.currentTimeMillis());
                     footerRefreshTime.setText("列表更新于" + simpleDateFormat.format(date));
-                    showPathFiles(currentPath.toString());
+                    showPathFiles();
                     //fileAdapter.notifyDataSetChanged();
                     try {
                         Thread.sleep(800);
@@ -544,7 +558,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                                         @Override
                                         public void run() {
                                             dismissLongClickPopup();
-                                            showPathFiles(currentPath.toString());
+                                            showPathFiles();
                                             progressDialog.dismiss();
                                         }
                                     });
@@ -635,7 +649,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     /**
      * 主线程showToast
      *
-     * @param msg
+     * @param msg 显示消息
      */
     public void showToast(final String msg) {
         runOnUiThread(new Runnable() {
@@ -648,12 +662,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
     /**
      * 列出path路径下的全部文件与文件夹
-     *
-     * @param path 要显示的路径
      */
-    public void showPathFiles(final String path) {
+    public void showPathFiles() {
         //view.setClickable(false); // view设置监听后方法作废
-        new ListPathFileTask(ftp, path, this).execute();
+        new ListPathFileTask(ftp, currentPath.toString(), this).execute();
     }
 
     /**
@@ -810,12 +822,14 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     public void onFinsh(Boolean b) {
         if (b) {
             showToast("上传成功");
-            showPathFiles(currentPath.toString());
+            showPathFiles();
         } else {
             showToast("上传失败");
         }
         NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        manager.cancel(1);
+        if (manager != null) {
+            manager.cancel(1);
+        }
     }
 
 }

@@ -15,7 +15,7 @@ public class myApplication extends Application {
 
     public void onCreate() {
         super.onCreate();
-        oList = new ArrayList<Activity>();
+        oList = new ArrayList<>();
     }
 
     /**

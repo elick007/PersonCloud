@@ -1,6 +1,7 @@
 package com.example.admin.ftptest.MyView;
 
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
@@ -9,13 +10,11 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Display;
 
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.admin.ftptest.DirAdapter;
 import com.example.admin.ftptest.FTPHelper.CallBackListener;
@@ -30,17 +29,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-/**
+/**复制或移动Dialog
  * Created by admin on 2018/6/5.
  */
 
 public class CopyMoveDialog extends Dialog implements CallBackListener{
-    private RecyclerView recyclerView;
     private Context context;
     private DirAdapter dirAdapter;
     private List<FTPFile> list = new ArrayList<>();
-    private TextView cancel;
-    private TextView confirm;
     private TextView choosePath;
     private ChooseListener chooseListener;
     private String path="";
@@ -55,9 +51,9 @@ public class CopyMoveDialog extends Dialog implements CallBackListener{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.dialog_copy_move);
-        recyclerView = findViewById(R.id.dialog_recyclerView);
-        cancel = findViewById(R.id.dialog_copy_move_cancel);
-        confirm = findViewById(R.id.dialog_copy_move_sure);
+        RecyclerView recyclerView = findViewById(R.id.dialog_recyclerView);
+        TextView cancel = findViewById(R.id.dialog_copy_move_cancel);
+        TextView confirm = findViewById(R.id.dialog_copy_move_sure);
         choosePath=findViewById(R.id.dialog_copy_move_choosePath);
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -86,10 +82,11 @@ public class CopyMoveDialog extends Dialog implements CallBackListener{
         recyclerView.setAdapter(dirAdapter);//设置适配器
         recyclerView.addItemDecoration(new DividerItemDecoration(context, DividerItemDecoration.VERTICAL));//设置分割线
         dirAdapter.setOnItemClickListener(new DirAdapter.OnItemClickListener() {
+            @SuppressLint("SetTextI18n")
             @Override
             public void onItemClick(View itemView, int position) {
                 if (position==0){
-                    if (path!=""){
+                    if (!path.equals("")){
                         path=path.substring(0, path.lastIndexOf("/"));
                     }
                 }else {

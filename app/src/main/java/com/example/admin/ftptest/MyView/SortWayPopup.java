@@ -1,5 +1,6 @@
 package com.example.admin.ftptest.MyView;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
@@ -20,12 +21,15 @@ public class SortWayPopup extends PopupWindow {
     private View mMenuView;
     private TextView descByTime,descByFileName,ascByFileSize,descByFileSize;
 
+    @SuppressLint("InflateParams")
     public SortWayPopup(final Activity context, View.OnClickListener itemsOnClick) {
         super(context);
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        mMenuView = inflater.inflate(R.layout.header_sortway_choise_layout, null);
-         descByTime = mMenuView.findViewById(R.id.desc_by_time);
+        if (inflater != null) {
+            mMenuView = inflater.inflate(R.layout.header_sortway_choise_layout, null);
+        }
+        descByTime = mMenuView.findViewById(R.id.desc_by_time);
         descByFileName = mMenuView.findViewById(R.id.desc_by_fileName);
         ascByFileSize = mMenuView.findViewById(R.id.asc_by_fileSize);
         descByFileSize = mMenuView.findViewById(R.id.desc_by_fileSize);
@@ -51,6 +55,7 @@ public class SortWayPopup extends PopupWindow {
         //mMenuView添加OnTouchListener监听判断获取触屏位置如果在选择框外面则销毁弹出框
         mMenuView.setOnTouchListener(new View.OnTouchListener() {
 
+            @SuppressLint("ClickableViewAccessibility")
             public boolean onTouch(View v, MotionEvent event) {
 
                 int height = mMenuView.findViewById(R.id.pop_layout).getTop();

@@ -47,7 +47,7 @@ public class SharedPreferencesUtils {
         for (ContentValue contentValue : contentValues) {
             //如果是字符型类型
             if (contentValue.value instanceof String) {
-                editor.putString(contentValue.key, contentValue.value.toString()).commit();
+                editor.putString(contentValue.key, contentValue.value.toString()).apply();
             }
             //如果是int类型
             if (contentValue.value instanceof Integer) {
@@ -85,7 +85,7 @@ public class SharedPreferencesUtils {
 
     //清除当前文件的所有的数据
     public void clear() {
-        sharedPreferences.edit().clear().commit();
+        sharedPreferences.edit().clear().apply();
     }
 
 }

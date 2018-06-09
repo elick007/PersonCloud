@@ -1,14 +1,10 @@
 package com.example.admin.ftptest.FTPHelper;
 
 import android.os.AsyncTask;
-
 import org.apache.commons.net.ftp.FTPFile;
-
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
-/**
+/**列出服务器path下所有文件夹
  * Created by admin on 2018/6/6.
  */
 

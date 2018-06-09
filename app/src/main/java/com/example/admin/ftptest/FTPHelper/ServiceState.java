@@ -10,7 +10,7 @@ public class ServiceState {
     public static String passwd;
 
     public ServiceState(String loginName, String passwd) {
-        this.loginName = loginName;
-        this.passwd = passwd;
+        ServiceState.loginName = loginName;
+        ServiceState.passwd = passwd;
     }
 }

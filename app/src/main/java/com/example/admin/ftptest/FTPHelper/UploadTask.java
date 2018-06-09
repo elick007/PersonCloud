@@ -1,11 +1,5 @@
 package com.example.admin.ftptest.FTPHelper;
-
-import android.app.Notification;
 import android.os.AsyncTask;
-import android.support.v4.app.NotificationCompat;
-
-import com.example.admin.ftptest.MainActivity;
-
 import java.io.File;
 import java.io.IOException;
 

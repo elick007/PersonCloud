@@ -1,7 +1,4 @@
 package com.example.admin.ftptest.FTPHelper;
-
-import android.util.Log;
-
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
@@ -10,13 +7,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Handler;
-
-import javax.xml.transform.Result;
-
 /**
  * Created by admin on 2018/5/2.
  */
@@ -53,7 +45,6 @@ public class FTP {
             ftpClient.disconnect();
             System.out.print("faile");
             return false;
-            //throw new IOException("connect fail: " + reply);
         }
         // 登录到服务器
         ftpClient.login(userName, password);
@@ -88,9 +79,9 @@ public class FTP {
     }
 
     /**
-     * 判断是否连接
      *
-     * @return
+     *
+     * @return 判断是否连接
      */
     public boolean isConnected() {
         return ftpClient.isConnected();

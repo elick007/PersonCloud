@@ -1,17 +1,13 @@
 package com.example.admin.ftptest.FTPHelper;
 
 import android.os.AsyncTask;
-import android.util.Log;
-
-import com.example.admin.ftptest.SortWayFuntion;
-
 import org.apache.commons.net.ftp.FTPFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
+/**获取服务器路径path下所有FTPFile
  * Created by admin on 2018/5/25.
  */
 

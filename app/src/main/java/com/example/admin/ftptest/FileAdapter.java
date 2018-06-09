@@ -1,5 +1,6 @@
 package com.example.admin.ftptest;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -27,12 +28,13 @@ import java.util.List;
 public class FileAdapter extends RecyclerView.Adapter<FileAdapter.ViewHolder> {
 
     private List<FTPFile> mFiles;
+    @SuppressLint("SimpleDateFormat")
     private SimpleDateFormat time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//转化时间为yyyy-MM-dd HH:mm:ss格式
     private OnItemClickListener mOnItemClickListener;
-    public static final int TYPE_HEADER = 0;//带有header
-    public static final int TYPE_FOOTER = 1;//带有footer
-    public static final int TYPE_NORMAL = 2;//不带header和footer
-    public static final int TYPE_BACK = 3;//带返回和返回根目录
+    private static final int TYPE_HEADER = 0;//带有header
+    private static final int TYPE_FOOTER = 1;//带有footer
+    private static final int TYPE_NORMAL = 2;//不带header和footer
+    private static final int TYPE_BACK = 3;//带返回和返回根目录
     private View mHeaderView;
     private View mFooterView;
     private View backLastView;
@@ -82,15 +84,12 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.ViewHolder> {
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == TYPE_HEADER) {
-            // mHeaderView=LayoutInflater.from(parent.getContext()).inflate(R.layout.headerview_layout,parent,false);
             return new ViewHolder(mHeaderView);
         } else if (viewType == TYPE_FOOTER) {
-            // mFooterView=LayoutInflater.from(parent.getContext()).inflate(R.layout.footerview_layout,parent,false);
             return new ViewHolder(mFooterView);
         } else if (viewType == TYPE_NORMAL) {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_layout, parent, false);
-            ViewHolder holder = new ViewHolder(view);
-            return holder;
+            return new ViewHolder(view);
         } else if (viewType == TYPE_BACK) {
             backLastView = LayoutInflater.from(parent.getContext()).inflate(R.layout.back_root_item_layout, parent, false);
             return new ViewHolder(backLastView);
@@ -98,6 +97,7 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.ViewHolder> {
         return null;
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
         //头部绑定数据
@@ -213,7 +213,7 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.ViewHolder> {
                     holder.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                         @Override
                         public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                            if (isCheckChange==false)
+                            if (!isCheckChange)
                                 return;
                             int position = (int) compoundButton.getTag();
                             if (b) {
@@ -226,31 +226,26 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.ViewHolder> {
                         }
                     });
                 }
-                return;
 
         }
-        if (getItemViewType(position) == TYPE_FOOTER) {
-            return;
-        }
-
     }
 
     private int setFileImage(FTPFile ftpFile) {
 
-        if (ftpFile.getName().toString().endsWith(".txt")){
+        if (ftpFile.getName().endsWith(".txt")){
             return R.drawable.txt;
-        }else if (ftpFile.getName().toString().endsWith(".apk")){
+        }else if (ftpFile.getName().endsWith(".apk")){
             return R.drawable.apk;
-        }else if (ftpFile.getName().toString().endsWith(".zip")||ftpFile.getName().toString().endsWith(".rar")||ftpFile.getName().toString().endsWith("gz")){
+        }else if (ftpFile.getName().endsWith(".zip")|| ftpFile.getName().endsWith(".rar")|| ftpFile.getName().endsWith("gz")){
             return R.drawable.zip;
-        }else if (ftpFile.getName().toString().endsWith(".jpg")||ftpFile.getName().toString().endsWith(".jpeg")||ftpFile.getName().toString().endsWith(".png")
-                ||ftpFile.getName().toString().endsWith(".gif")||ftpFile.getName().toString().endsWith(".bpm")){
+        }else if (ftpFile.getName().endsWith(".jpg")|| ftpFile.getName().endsWith(".jpeg")|| ftpFile.getName().endsWith(".png")
+                || ftpFile.getName().endsWith(".gif")|| ftpFile.getName().endsWith(".bpm")){
             return R.drawable.jpg;
-        }else if (ftpFile.getName().toString().endsWith(".mp3")||ftpFile.getName().toString().endsWith(".wma")||ftpFile.getName().toString().endsWith(".wav")||
-                ftpFile.getName().toString().endsWith(".aac")){
+        }else if (ftpFile.getName().endsWith(".mp3")|| ftpFile.getName().endsWith(".wma")|| ftpFile.getName().endsWith(".wav")||
+                ftpFile.getName().endsWith(".aac")){
             return R.drawable.mp3;
-        }else if (ftpFile.getName().toString().endsWith(".mp4")||ftpFile.getName().toString().endsWith(".avi")||ftpFile.getName().toString().endsWith(".3gp")||
-                ftpFile.getName().toString().endsWith(".rmvb")||ftpFile.getName().toString().endsWith(".mpeg")){
+        }else if (ftpFile.getName().endsWith(".mp4")|| ftpFile.getName().endsWith(".avi")|| ftpFile.getName().endsWith(".3gp")||
+                ftpFile.getName().endsWith(".rmvb")|| ftpFile.getName().endsWith(".mpeg")){
             return R.drawable.video;
         }
         return R.drawable.unknowfile;
@@ -260,9 +255,9 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.ViewHolder> {
     public int getItemCount() {
         if (mHeaderView == null && mFooterView == null) {
             return mFiles.size();
-        } else if (mHeaderView == null && mFooterView != null) {
+        } else if (mHeaderView == null) {
             return mFiles.size() + 1;
-        } else if (mHeaderView != null && mFooterView == null) {
+        } else if (mFooterView == null) {
             return mFiles.size() + 1;
         } else {
             return mFiles.size() + 2;
@@ -270,9 +265,9 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.ViewHolder> {
 
     }
 
-    public void showmCheckState() {
-        Log.e("checkState", mCheckStates.toString());
-    }
+//    public void showmCheckState() {
+//        Log.e("checkState", mCheckStates.toString());
+//    }
 
     public void setmCheckStates() {
         for (int i = 2; i <= mFiles.size(); i++) {
@@ -315,13 +310,12 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.ViewHolder> {
             }
             if (itemView == backLastView) {
                 backLast = itemView.findViewById(R.id.back_and_backRoot);
-                return;
             } else {
-                fileTypeImage = (ImageView) itemView.findViewById(R.id.fileTypeImage);
-                fileOrDirName = (TextView) itemView.findViewById(R.id.fileOrDirName);
-                fileOrDirCurrentTime = (TextView) itemView.findViewById(R.id.fileRecentTime);
-                fileSize = (TextView) itemView.findViewById(R.id.fileSize);
-                checkBox = (CheckBox) itemView.findViewById(R.id.choose_item);
+                fileTypeImage =  itemView.findViewById(R.id.fileTypeImage);
+                fileOrDirName =  itemView.findViewById(R.id.fileOrDirName);
+                fileOrDirCurrentTime =  itemView.findViewById(R.id.fileRecentTime);
+                fileSize =  itemView.findViewById(R.id.fileSize);
+                checkBox =  itemView.findViewById(R.id.choose_item);
             }
         }
     }

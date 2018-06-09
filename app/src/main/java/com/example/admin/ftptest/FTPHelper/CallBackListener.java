@@ -4,7 +4,7 @@ import org.apache.commons.net.ftp.FTPFile;
 
 import java.util.List;
 
-/**
+/**AsyncTask回调
  * Created by admin on 2018/5/23.
  */
 

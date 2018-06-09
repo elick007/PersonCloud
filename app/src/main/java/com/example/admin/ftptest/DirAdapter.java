@@ -51,7 +51,7 @@ public class DirAdapter extends RecyclerView.Adapter<DirAdapter.ViewHolder> {
     static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
         TextView dirName;
-        public ViewHolder(View itemView) {
+        private ViewHolder(View itemView) {
             super(itemView);
             imageView=itemView.findViewById(R.id.list_dir_item_image);
             dirName=itemView.findViewById(R.id.list_dir_item_dirName);

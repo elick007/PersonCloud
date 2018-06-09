@@ -10,25 +10,6 @@ import java.util.List;
 
 public class SortWayFuntion {
 
-//    public List<FTPFile> descByTime(List<FTPFile> list,int s,int t) {
-//        int i=s,j=t;
-//        FTPFile temp;
-//        if (s<t){
-//            temp=list.get(s);
-//            while (i!=j){
-//                while (j>i&&list.get(j).getTimestamp().before(temp.getTimestamp()));
-//                j--;
-//                list.set(i,list.get(j));
-//                while (i<j&& list.get(i).getTimestamp().after(temp.getTimestamp()));
-//                i++;
-//                list.set(j,list.get(i));
-//            }
-//            list.set(i,temp);
-//            descByTime(list,s,i-1);
-//            descByTime(list,i+1,t);
-//        }
-//        return list;
-//    }
     //按时间降序
     public List<FTPFile> descByTime(List<FTPFile> list) {
         FTPFile temp;

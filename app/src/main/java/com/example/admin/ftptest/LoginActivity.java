@@ -1,5 +1,6 @@
 package com.example.admin.ftptest;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -70,6 +71,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
     /**
      * 把本地保存的数据设置数据到输入框中
      */
+    @SuppressLint("SetTextI18n")
     public void setTextNameAndPassword() {
         et_name.setText("" + getLocalName());
         et_password.setText("" + getLocalPassword());
@@ -78,6 +80,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
     /**
      * 设置数据到输入框中
      */
+    @SuppressLint("SetTextI18n")
     public void setTextName() {
         et_name.setText("" + getLocalName());
     }
@@ -89,8 +92,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
     public String getLocalName() {
         //获取SharedPreferences对象，使用自定义类的方法来获取对象
         SharedPreferencesUtils helper = new SharedPreferencesUtils(this, "setting");
-        String name = helper.getString("name");
-        return name;
+        return helper.getString("name");
     }
 
 
@@ -100,8 +102,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
     public String getLocalPassword() {
         //获取SharedPreferences对象，使用自定义类的方法来获取对象
         SharedPreferencesUtils helper = new SharedPreferencesUtils(this, "setting");
-        String password = helper.getString("password");
-        return password;
+        return helper.getString("password");
 
     }
 
@@ -111,8 +112,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
     private boolean autoLogin() {
         //获取SharedPreferences对象，使用自定义类的方法来获取对象
         SharedPreferencesUtils helper = new SharedPreferencesUtils(this, "setting");
-        boolean autoLogin = helper.getBoolean("autoLogin", false);
-        return autoLogin;
+        return helper.getBoolean("autoLogin", false);
     }
 
     /**
@@ -121,8 +121,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
     private boolean remenberPassword() {
         //获取SharedPreferences对象，使用自定义类的方法来获取对象
         SharedPreferencesUtils helper = new SharedPreferencesUtils(this, "setting");
-        boolean remenberPassword = helper.getBoolean("remenberPassword", false);
-        return remenberPassword;
+        return helper.getBoolean("remenberPassword", false);
     }
 
 
@@ -134,12 +133,12 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
     }
 
     private void initView() {
-        mLoginBtn = (Button) findViewById(R.id.btn_login);
-        et_name = (EditText) findViewById(R.id.et_account);
-        et_password = (EditText) findViewById(R.id.et_password);
-        checkBox_password = (CheckBox) findViewById(R.id.checkBox_password);
-        checkBox_login = (CheckBox) findViewById(R.id.checkBox_login);
-        iv_see_password = (ImageView) findViewById(R.id.iv_see_password);
+        mLoginBtn =  findViewById(R.id.btn_login);
+        et_name = findViewById(R.id.et_account);
+        et_password =  findViewById(R.id.et_password);
+        checkBox_password =  findViewById(R.id.checkBox_password);
+        checkBox_login = findViewById(R.id.checkBox_login);
+        iv_see_password = findViewById(R.id.iv_see_password);
     }
 
     /**
@@ -313,9 +312,9 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
     }
 
     /**
-     * 是否可以点击登录按钮
      *
-     * @param clickable
+     *
+     * @param clickable 是否可以点击登录按钮
      */
     public void setLoginBtnClickable(boolean clickable) {
         mLoginBtn.setClickable(clickable);
