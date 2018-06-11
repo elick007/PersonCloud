@@ -5,3 +5,5 @@
 基于AsyncTask请求网络操作与更新UI
 
 <img src="https://github.com/elick007/PersonCloud/blob/master/Screenshot_2018-06-11-21-38-34-123_com.example.ad.png" width="30%" height="30%" />
+
+<img src="https://github.com/elick007/PersonCloud/blob/master/Screenshot_2018-06-11-21-38-52-156_com.example.ad.png" width="30%" height="30%" />
