@@ -1,4 +1,4 @@
-package com.example.admin.ftptest.FTPHelper;
+package com.example.admin.ftptest.ftphelper;
 
 import android.os.AsyncTask;
 import org.apache.commons.net.ftp.FTPFile;
@@ -21,7 +21,7 @@ public class ListPathDirTask extends AsyncTask<String,Void,List<FTPFile>> {
     @Override
     protected List<FTPFile> doInBackground(String... strings) {
         List<FTPFile> list;
-            list=FTP.listFTPDir(filePath);
+            list= FTPHelper.getInstance().listFTPDir(filePath);
         return list;
     }
 

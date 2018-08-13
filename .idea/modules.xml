@@ -2,8 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/FTPTest.iml" filepath="$PROJECT_DIR$/FTPTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/PersonCloud.iml" filepath="$PROJECT_DIR$/PersonCloud.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/baserecyclerview/baserecyclerview.iml" filepath="$PROJECT_DIR$/baserecyclerview/baserecyclerview.iml" />
     </modules>
   </component>
 </project>

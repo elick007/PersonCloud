@@ -1,4 +1,4 @@
-package com.example.admin.ftptest;
+package com.example.admin.ftptest.view;
 
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
@@ -14,10 +14,11 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.example.admin.ftptest.FTPHelper.FTP;
-import com.example.admin.ftptest.FTPHelper.ServiceState;
-
-import java.io.IOException;
+import com.example.admin.ftptest.BaseActivity;
+import com.example.admin.ftptest.R;
+import com.example.admin.ftptest.ftphelper.FTPHelper;
+import com.example.admin.ftptest.ftphelper.ServiceState;
+import com.example.admin.ftptest.utils.SharedPreferencesUtils;
 
 /**
  * Created by admin on 2018/5/3.
@@ -32,7 +33,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
     private CheckBox checkBox_login;
     private ImageView iv_see_password;
     private ProgressDialog mLoadingDialog; //显示正在加载的对话框
-    FTP ftp;//对象ftp用于登录
     boolean isSuccess;//判断是否登录成功
 
     @Override
@@ -192,8 +192,9 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
         }
         //登录一般都是请求服务器来判断密码是否正确，要请求网络，要子线程
         showLoading();//显示加载框
+        ServiceState.setLoginName(et_name.getText().toString().trim());
+        ServiceState.setPasswd(et_password.getText().toString().trim());
         Thread loginRunnable = new Thread() {
-
             @Override
             public void run() {
                 super.run();
@@ -204,19 +205,14 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                ftp = new FTP(ServiceState.host, et_name.getText().toString().trim(), et_password.getText().toString().trim());
-                try {
-                    isSuccess = ftp.openConnect();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                isSuccess = FTPHelper.getInstance().openConnect();
                 //判断账号和密码
                 if (isSuccess) {
                     showToast("登录成功");
                     loadCheckBoxState();//记录下当前用户记住密码和自动登录的状态;
-                    new ServiceState(et_name.getText().toString().trim(),et_password.getText().toString().trim());
-                    Intent intent=new Intent(LoginActivity.this,MainActivity.class);
-                    startActivity(intent);
+                    Intent intent=new Intent(LoginActivity.this,MyActivity.class);
+                    //startActivity(intent);
+                    LoginActivity.this.setResult(RESULT_OK,intent);
                     finish();//关闭页面
                 } else {
                     showToast("输入的登录账号或密码不正确");

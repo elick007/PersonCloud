@@ -1,4 +1,4 @@
-package com.example.admin.ftptest.MyView;
+package com.example.admin.ftptest.myview;
 
 
 import android.annotation.SuppressLint;
@@ -16,10 +16,10 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 
-import com.example.admin.ftptest.DirAdapter;
-import com.example.admin.ftptest.FTPHelper.CallBackListener;
+import com.example.admin.ftptest.adapter.DirAdapter;
+import com.example.admin.ftptest.ftphelper.CallBackListener;
 
-import com.example.admin.ftptest.FTPHelper.ListPathDirTask;
+import com.example.admin.ftptest.ftphelper.ListPathDirTask;
 
 import com.example.admin.ftptest.R;
 

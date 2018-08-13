@@ -5,6 +5,7 @@
     android:background="#FFE6E6E6"
     android:layout_height="60dp">
     <LinearLayout
+        android:id="@+id/header_sort_way_viewGroup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/dp_10"

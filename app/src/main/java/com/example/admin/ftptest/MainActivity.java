@@ -42,14 +42,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.admin.ftptest.FTPHelper.FTP;
-import com.example.admin.ftptest.FTPHelper.CallBackListener;
-import com.example.admin.ftptest.FTPHelper.ListPathFileTask;
-import com.example.admin.ftptest.FTPHelper.ServiceState;
-import com.example.admin.ftptest.FTPHelper.UploadTask;
-import com.example.admin.ftptest.MyView.CopyMoveDialog;
-import com.example.admin.ftptest.MyView.CustomDirDialog;
-import com.example.admin.ftptest.MyView.SortWayPopup;
+import com.example.admin.ftptest.adapter.FileAdapter;
+import com.example.admin.ftptest.ftphelper.FTPHelper;
+import com.example.admin.ftptest.ftphelper.CallBackListener;
+import com.example.admin.ftptest.ftphelper.ServiceState;
+import com.example.admin.ftptest.myview.CopyMoveDialog;
+import com.example.admin.ftptest.myview.SortWayPopup;
+import com.example.admin.ftptest.utils.SortWayFuntion;
+import com.example.admin.ftptest.view.LoginActivity;
 
 import org.apache.commons.net.ftp.FTPFile;
 
@@ -103,7 +103,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     ViewGroup longClockDownload;
     private TextView footerRefreshTime;//footer显示更新时间
     private long exitTime = 0;//按键时间间隔
-    private FTP ftp;
+    private FTPHelper ftpHelper;
     private List<FTPFile> list = new ArrayList<>();
     private FileAdapter fileAdapter;//适配器
     private boolean isSuccess = false;
@@ -193,44 +193,44 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                         }
                         break;
                     case R.id.nav_newDir:
-                        final CustomDirDialog customDirDialog = new CustomDirDialog(MainActivity.this, R.layout.new_dir_dialog_layout,
-                                new int[]{R.id.dialog_cancel, R.id.dialog_sure});
-                        CustomDirDialog.OnCenterItemClickListener dialogListener = new CustomDirDialog.OnCenterItemClickListener() {
-                            @Override
-                            public void OnCenterItemClick(CustomDirDialog dialog, View view) {
-                                switch (view.getId()) {
-                                    case R.id.dialog_sure:
-                                        EditText editText = customDirDialog.findViewById(R.id.edit_new_dir);
-                                        final String newDirName = editText.getText().toString().trim();
-                                        new Thread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                try {
-                                                    switch (ftp.creatNewDir(newDirName)) {
-                                                        case 0:
-                                                            showToast("创建成功");
-                                                            showPathFiles();
-                                                            break;
-                                                        case 1:
-                                                            showToast("创建失败");
-                                                            break;
-                                                        case 2:
-                                                            showToast("文件夹已存在");
-                                                            break;
-                                                    }
-                                                } catch (IOException e) {
-                                                    e.printStackTrace();
-                                                }
-                                            }
-                                        }).start();
-                                        break;
-                                    default:
-                                        break;
-                                }
-                            }
-                        };
-                        customDirDialog.setOnCenterItemClickListener(dialogListener);
-                        customDirDialog.show();
+//                        final NewDirDialog newDirDialog = new NewDirDialog(MainActivity.this, R.layout.new_dir_dialog_layout,
+//                                new int[]{R.id.dialog_cancel, R.id.dialog_sure});
+//                        NewDirDialog.OnCenterItemClickListener dialogListener = new NewDirDialog.OnCenterItemClickListener() {
+//                            @Override
+//                            public void OnCenterItemClick(NewDirDialog dialog, View view) {
+//                                switch (view.getId()) {
+//                                    case R.id.dialog_sure:
+//                                        EditText editText = newDirDialog.findViewById(R.id.edit_new_dir);
+//                                        final String newDirName = editText.getText().toString().trim();
+//                                        new Thread(new Runnable() {
+//                                            @Override
+//                                            public void run() {
+//                                                try {
+//                                                    switch (ftpHelper.creatNewDir(newDirName)) {
+//                                                        case 0:
+//                                                            showToast("创建成功");
+//                                                            showPathFiles();
+//                                                            break;
+//                                                        case 1:
+//                                                            showToast("创建失败");
+//                                                            break;
+//                                                        case 2:
+//                                                            showToast("文件夹已存在");
+//                                                            break;
+//                                                    }
+//                                                } catch (IOException e) {
+//                                                    e.printStackTrace();
+//                                                }
+//                                            }
+//                                        }).start();
+//                                        break;
+//                                    default:
+//                                        break;
+//                                }
+//                            }
+//                        };
+//                        newDirDialog.setOnCenterItemClickListener(dialogListener);
+//                        newDirDialog.show();
                         break;
 
                 }
@@ -291,7 +291,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                     if (manager != null) {
                         manager.notify(1, notification);
                     }
-                    new UploadTask(ftp, imagePath, currentPath.toString(), this).execute();
+                    //new UploadTaskModel(ftpHelper, imagePath, currentPath.toString(), this).execute();
                 }
                 break;
             default:
@@ -329,27 +329,28 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         //显示登录的用户名
         if (ServiceState.loginName == null) {
             userName.setText("未登录");
-        } else {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    ftp = new FTP(ServiceState.host, ServiceState.loginName, ServiceState.passwd);
-                    try {
-                        isSuccess = ftp.openConnect();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    //登录成功则更新列表
-                    if (isSuccess) {
-                        showPathFiles();
-                    }
-                }
-            }).start();
-            userName.setText(ServiceState.loginName);
-            View navHeader = navigationView.getHeaderView(0);//获取navigationView头部布局
-            TextView navUserName = navHeader.findViewById(R.id.nav_userName);
-            navUserName.setText(ServiceState.loginName);//设置navigationView用户名
-        }
+       }
+//       else {
+//            new Thread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    ftpHelper = new FTPHelper(ServiceState.host, ServiceState.loginName, ServiceState.passwd);
+//                    try {
+//                        isSuccess = ftpHelper.openConnect();
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    }
+//                    //登录成功则更新列表
+//                    if (isSuccess) {
+//                        showPathFiles();
+//                    }
+//                }
+//            }).start();
+//            userName.setText(ServiceState.loginName);
+//            View navHeader = navigationView.getHeaderView(0);//获取navigationView头部布局
+//            TextView navUserName = navHeader.findViewById(R.id.nav_userName);
+//            navUserName.setText(ServiceState.loginName);//设置navigationView用户名
+//        }
     }
 
 
@@ -375,7 +376,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                 //点击是header排序类型就弹出popupWindow
                 if (itemView == headerSortWay || itemView == headerSortWayImage) {
                     // popupWindow.showAsDropDown(headerSortWay, -15, 0);
-                    sortWayPopup = new SortWayPopup(MainActivity.this, itemsOnClick);
+                    //sortWayPopup = new SortWayPopup(MainActivity.this, itemsOnClick);
                     sortWayPopup.showAsDropDown(headerSortWay, -15, 0);
                     return;
                 }
@@ -391,7 +392,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                         if (!currentPath.toString().equals("/")) {
                             currentPath.delete(currentPath.lastIndexOf("/"), currentPath.length());
                             showPathFiles();
-                            ftp.setCurrentPath(currentPath.toString());
+                            ftpHelper.setCurrentPath(currentPath.toString());
                             showToast(currentPath.toString());
                         }
                         return;
@@ -405,7 +406,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                                 currentPath.append("/").append(list.get(position - 1).getName());
                             }
                             showPathFiles();
-                            ftp.setCurrentPath(currentPath.toString());
+                            ftpHelper.setCurrentPath(currentPath.toString());
                             showToast(currentPath.toString());
                         }
                     }
@@ -460,7 +461,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                     fileSortWay = FileSortWay.DESC_BY_TIME;//更改标记按时间降序
                     sortWay.setText("按时间降序");
                     break;
-                case R.id.desc_by_fileName:
+                case R.id.asc_by_fileName:
                     fileSortWay = FileSortWay.DESC_BY_FILENAME;//更改标记按文件名降序
                     sortWay.setText("文件名降序");
                     break;
@@ -546,13 +547,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                                 @Override
                                 public void run() {
                                     if (ftpFile.isFile()) {
-                                        if (ftp.deleteFile(ftpFile.getName())) {
+                                        if (ftpHelper.deleteFile(ftpFile.getName())) {
                                             showToast(ftpFile.getName() + "删除成功");
                                         } else {
                                             showToast(ftpFile.getName() + "删除失败");
                                         }
                                     } else {
-                                        ftp.removeDirectoryALLFile(ftpFile.getName());
+                                        ftpHelper.removeDirectoryALLFile(ftpFile.getName());
                                     }
                                     runOnUiThread(new Runnable() {
                                         @Override
@@ -588,7 +589,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                             @Override
                             public void run() {
                                 for (String position : checkList) {
-                                    FTP.reNameOrMove(currentPath.toString() + "/" + list.get(Integer.parseInt(position) - 1).getName(), path + "/" + list.get(Integer.parseInt(position) - 1).getName());
+                                    //FTPHelper.reNameOrMove(currentPath.toString() + "/" + list.get(Integer.parseInt(position) - 1).getName(), path + "/" + list.get(Integer.parseInt(position) - 1).getName());
                                 }
                                 Message message = new Message();
                                 message.what = 1;
@@ -608,40 +609,40 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                 break;
             //重命名操作
             case R.id.long_click_check_rename:
-                final CustomDirDialog renameDialog = new CustomDirDialog(this, R.layout.rename_dialog_layout, new int[]{R.id.rename_dialog_cancel, R.id.rename_dialog_sure});
-                CustomDirDialog.OnCenterItemClickListener listener = new CustomDirDialog.OnCenterItemClickListener() {
-                    @Override
-                    public void OnCenterItemClick(CustomDirDialog dialog, View view) {
-                        switch (view.getId()) {
-                            case R.id.rename_dialog_sure:
-                                if (checkList.size() != 1) {
-                                    showToast("不支持多个命名");
-                                } else {
-                                    fileAdapter.setIsOnCheckChange(false);
-                                    EditText renameEdit = renameDialog.findViewById(R.id.rename_dialog_newName_edit);
-                                    final String newName = renameEdit.getText().toString().trim();
-                                    new Thread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            if (FTP.reNameOrMove(list.get(Integer.valueOf(checkList.get(0)) - 1).getName(), newName)) {
-                                                Message message = new Message();
-                                                message.what = 3;
-                                                handler.sendMessage(message);
-                                            }
-                                        }
-                                    }).start();
-                                }
-                                renameDialog.dismiss();
-                                break;
-                            case R.id.rename_dialog_cancel:
-                                fileAdapter.setIsOnCheckChange(true);
-                                renameDialog.dismiss();
-                                break;
-                        }
-                    }
-                };
-                renameDialog.setOnCenterItemClickListener(listener);
-                renameDialog.show();
+//                final NewDirDialog renameDialog = new NewDirDialog(this, R.layout.rename_dialog_layout, new int[]{R.id.rename_dialog_cancel, R.id.rename_dialog_sure});
+//                NewDirDialog.OnCenterItemClickListener listener = new NewDirDialog.OnCenterItemClickListener() {
+//                    @Override
+//                    public void OnCenterItemClick(NewDirDialog dialog, View view) {
+//                        switch (view.getId()) {
+//                            case R.id.rename_dialog_sure:
+//                                if (checkList.size() != 1) {
+//                                    showToast("不支持多个命名");
+//                                } else {
+//                                    fileAdapter.setIsOnCheckChange(false);
+//                                    EditText renameEdit = renameDialog.findViewById(R.id.rename_dialog_newName_edit);
+//                                    final String newName = renameEdit.getText().toString().trim();
+//                                    new Thread(new Runnable() {
+//                                        @Override
+//                                        public void run() {
+////                                            if (FTPHelper.reNameOrMove(list.get(Integer.valueOf(checkList.get(0)) - 1).getName(), newName)) {
+////                                                Message message = new Message();
+////                                                message.what = 3;
+////                                                handler.sendMessage(message);
+////                                            }
+//                                        }
+//                                    }).start();
+//                                }
+//                                renameDialog.dismiss();
+//                                break;
+//                            case R.id.rename_dialog_cancel:
+//                                fileAdapter.setIsOnCheckChange(true);
+//                                renameDialog.dismiss();
+//                                break;
+//                        }
+//                    }
+//                };
+//                renameDialog.setOnCenterItemClickListener(listener);
+//                renameDialog.show();
                 break;
         }
     }
@@ -665,7 +666,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
      */
     public void showPathFiles() {
         //view.setClickable(false); // view设置监听后方法作废
-        new ListPathFileTask(ftp, currentPath.toString(), this).execute();
+//        new ListPathFileTask(ftpHelper, currentPath.toString(), this).execute();
     }
 
     /**
@@ -673,7 +674,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
      */
     public void showLongClickPopup() {
         isShowCheck = true;
-        fileAdapter.setShowCheckBox(true);
+        FileAdapter.setShowCheckBox(true);
         fileAdapter.notifyDataSetChanged();
         //隐藏toolbar，显示Longclick弹出
         toolBar.setVisibility(View.GONE);
@@ -704,7 +705,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
      */
     public void dismissLongClickPopup() {
         isShowCheck = false;
-        fileAdapter.setShowCheckBox(false);
+        FileAdapter.setShowCheckBox(false);
         fileAdapter.clearmCheckStates();
         checkList.clear();
         //showPathFiles(currentPath);

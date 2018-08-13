@@ -1,4 +1,4 @@
-package com.example.admin.ftptest;
+package com.example.admin.ftptest.utils;
 
 import org.apache.commons.net.ftp.FTPFile;
 
@@ -11,7 +11,7 @@ import java.util.List;
 public class SortWayFuntion {
 
     //按时间降序
-    public List<FTPFile> descByTime(List<FTPFile> list) {
+    public static List<FTPFile> descByTime(List<FTPFile> list) {
         FTPFile temp;
         for (int i = 1; i < list.size(); i++) {
             for (int j = i + 1; j < list.size(); j++)
@@ -25,7 +25,7 @@ public class SortWayFuntion {
     }
 
     //按文件名降序
-    public List<FTPFile> descByName(List<FTPFile> list) {
+    public static List<FTPFile> descByName(List<FTPFile> list) {
         FTPFile temp;
         int length = list.size() - 1;
         for (int i = 1; i <= list.size() / 2; i++) {
@@ -34,14 +34,11 @@ public class SortWayFuntion {
             list.set(length, temp);
             length--;
         }
-//        for (int i=0;i<tempList.size();i++){
-//            Log.e("descbyname",tempList.get(i).getName());
-//        }
         return list;
     }
 
     //按文件大小升序
-    public List<FTPFile> ascByFileSize(List<FTPFile> list) {
+    public static List<FTPFile> ascByFileSize(List<FTPFile> list) {
         FTPFile temp;
         for (int i = 1; i < list.size(); i++) {
             for (int j = i + 1; j < list.size(); j++)
@@ -55,7 +52,7 @@ public class SortWayFuntion {
     }
 
     //按文件大小升序
-    public List<FTPFile> descByFileSize(List<FTPFile> list) {
+    public static List<FTPFile> descByFileSize(List<FTPFile> list) {
         FTPFile temp;
         for (int i = 1; i < list.size(); i++) {
             for (int j = i + 1; j < list.size(); j++)

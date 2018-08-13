@@ -1,4 +1,4 @@
-package com.example.admin.ftptest.FTPHelper;
+package com.example.admin.ftptest.ftphelper;
 
 import org.apache.commons.net.ftp.FTPFile;
 

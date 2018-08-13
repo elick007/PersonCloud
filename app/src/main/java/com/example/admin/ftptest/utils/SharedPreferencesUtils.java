@@ -1,4 +1,4 @@
-package com.example.admin.ftptest;
+package com.example.admin.ftptest.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;

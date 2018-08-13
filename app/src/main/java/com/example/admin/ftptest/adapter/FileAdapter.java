@@ -1,19 +1,17 @@
-package com.example.admin.ftptest;
+package com.example.admin.ftptest.adapter;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.example.admin.ftptest.R;
 
 import org.apache.commons.net.ftp.FTPFile;
 
@@ -38,9 +36,9 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.ViewHolder> {
     private View mHeaderView;
     private View mFooterView;
     private View backLastView;
-    private boolean showCheckBox;//是否是多选状态
+    private static boolean showCheckBox;//是否是多选状态
     private SparseBooleanArray mCheckStates;//记录选择状态
-    private boolean isCheckChange=true;
+    private static boolean isCheckChange=true;//是否监听CheckBox
     public FileAdapter(List<FTPFile> mFiles) {
         this.mFiles = mFiles;
         mCheckStates = new SparseBooleanArray();
@@ -59,13 +57,13 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.ViewHolder> {
     }
 
     //返回CheckBox是否显示
-    public boolean isShowCheckBox() {
+    public static boolean isShowCheckBox() {
         return showCheckBox;
     }
 
     //设置CheckBox显示状态
-    public void setShowCheckBox(boolean showCheckBox) {
-        this.showCheckBox = showCheckBox;
+    public static void setShowCheckBox(boolean showCheckBox) {
+        FileAdapter.showCheckBox = showCheckBox;
     }
 
     @Override
@@ -120,20 +118,20 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.ViewHolder> {
                         mOnItemClickListener.onItemClick(holder.changeLayoutImage, position); // 2
                     }
                 });
-                holder.sortFileWay.setOnClickListener(new View.OnClickListener() {
+                holder.sortWayGroup.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         int position = holder.getLayoutPosition(); // 1
-                        mOnItemClickListener.onItemClick(holder.sortFileWay, position); // 2
+                        mOnItemClickListener.onItemClick(holder.sortWayGroup, position); // 2
                     }
                 });
-                holder.sortFileWayImage.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        int position = holder.getLayoutPosition(); // 1
-                        mOnItemClickListener.onItemClick(holder.sortFileWayImage, position); // 2
-                    }
-                });
+//                holder.sortFileWayImage.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        int position = holder.getLayoutPosition(); // 1
+//                        mOnItemClickListener.onItemClick(holder.sortFileWayImage, position); // 2
+//                    }
+//                });
             }
             return;
         }
@@ -287,8 +285,9 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.ViewHolder> {
         TextView fileSize;
         CheckBox checkBox;
         //headerview包含的view
-        TextView sortFileWay;
-        ImageView sortFileWayImage;
+        //TextView sortFileWay;
+        ViewGroup sortWayGroup;
+        //ImageView sortFileWayImage;
         TextView fileCount;
         ImageView findFileImage;
         ImageView changeLayoutImage;
@@ -298,8 +297,9 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.ViewHolder> {
         public ViewHolder(View itemView) {
             super(itemView);
             if (itemView == mHeaderView) {
-                sortFileWay = itemView.findViewById(R.id.header_sort_way);
-                sortFileWayImage = itemView.findViewById(R.id.header_sort_way_image);
+                //sortFileWay = itemView.findViewById(R.id.header_sort_way);
+                sortWayGroup=itemView.findViewById(R.id.header_sort_way_viewGroup);
+                //sortFileWayImage = itemView.findViewById(R.id.header_sort_way_image);
                 fileCount = itemView.findViewById(R.id.header_file_count);
                 findFileImage = itemView.findViewById(R.id.header_search);
                 changeLayoutImage = itemView.findViewById(R.id.header_change_layout);
@@ -336,8 +336,8 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.ViewHolder> {
         mCheckStates.clear();
     }
 
-    public void setIsOnCheckChange(boolean b){
-        this.isCheckChange=b;
+    public static void setIsOnCheckChange(boolean b){
+        FileAdapter.isCheckChange=b;
     }
 
 }
