@@ -1,6 +1,10 @@
-package com.example.admin.ftptest.ftphelper;
+package com.example.admin.ftptest.model;
 
 import android.os.AsyncTask;
+
+import com.example.admin.ftptest.ftphelper.CallBackListener;
+import com.example.admin.ftptest.ftphelper.FTPHelper;
+
 import org.apache.commons.net.ftp.FTPFile;
 import java.util.List;
 

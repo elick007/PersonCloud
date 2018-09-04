@@ -1,17 +1,14 @@
 package com.example.admin.ftptest.view;
 
-import android.Manifest;
+
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -26,9 +23,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.example.admin.ftptest.BaseActivity;
-import com.example.admin.ftptest.MainActivity;
 import com.example.admin.ftptest.Presenter.ListFilesPresenter;
 import com.example.admin.ftptest.Presenter.OperatePresenter;
 import com.example.admin.ftptest.Presenter.UpLoadPresenter;
@@ -44,7 +39,6 @@ import com.example.admin.ftptest.utils.AnimatorUtil;
 import com.example.admin.ftptest.utils.MyLogger;
 
 import org.apache.commons.net.ftp.FTPFile;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -54,6 +48,7 @@ import java.util.TimerTask;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import me.iwf.photopicker.PhotoPicker;
 
 public class MyActivity extends BaseActivity implements BaseView, View.OnClickListener, NavigationView.OnNavigationItemSelectedListener {
 
@@ -109,6 +104,7 @@ public class MyActivity extends BaseActivity implements BaseView, View.OnClickLi
     private List<String> checkList = new ArrayList<>();//记录checkbox选择状态位置
     public static final int CHOOSE_PHOTO = 2;//启动相册参数
     public static final int LOGIN_ACT=3;//启动登录活动界面
+    private boolean safeClick;//防止多次点击
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -117,6 +113,7 @@ public class MyActivity extends BaseActivity implements BaseView, View.OnClickLi
         initView();
         initRV();
         initRVListener();
+        MyLogger.setDebug();
     }
 
     private void initView() {
@@ -197,10 +194,11 @@ public class MyActivity extends BaseActivity implements BaseView, View.OnClickLi
                     }
                     //点击的是文件夹便列出文件夹里的文件
                     if (list.get(position - 1).isDirectory()) {
-                        if (!isShowCheck) {
+                        if (!isShowCheck&&safeClick) {
                             if (currentPath.toString().equals("/")) {
                                 currentPath.append(list.get(position - 1).getName());
                             } else {
+                                safeClick=false;
                                 currentPath.append("/").append(list.get(position - 1).getName());
                             }
                             FTPHelper.getInstance().setCurrentPath(currentPath.toString());
@@ -238,9 +236,7 @@ public class MyActivity extends BaseActivity implements BaseView, View.OnClickLi
                         e.printStackTrace();
                     }
                     if (checkList.size() == 0) {
-                        //dismissLongClickPopup();
                         dissmissAnimator();
-                        //fileAdapter.notifyDataSetChanged();
                     }
                 }
                 longClickFileCount.setText("已选中" + (checkList != null ? checkList.size() : 0) + "个");
@@ -252,6 +248,7 @@ public class MyActivity extends BaseActivity implements BaseView, View.OnClickLi
 
     @Override
     public void showRV(List<FTPFile> lists) {
+        safeClick=true;
         list.clear();
         list.addAll(lists);
         fileAdapter.notifyDataSetChanged();
@@ -403,13 +400,11 @@ public class MyActivity extends BaseActivity implements BaseView, View.OnClickLi
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
-            case CHOOSE_PHOTO:
-                if (resultCode==RESULT_OK){
-                    UpLoadPresenter upLoadPresenter= new UpLoadPresenter(MyActivity.this,data,currentPath.toString());
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                        upLoadPresenter.doUploadImage();
-                    }
-                    showToast("后台上传中...");
+            case PhotoPicker.REQUEST_CODE:
+                if (resultCode==RESULT_OK&&data!=null){
+                    ArrayList<String> arrayList=data.getStringArrayListExtra(PhotoPicker.KEY_SELECTED_PHOTOS);
+                    Log.e("photo picker", arrayList.toString());
+                    new UpLoadPresenter(this,arrayList,currentPath.toString()).doUploadImage();
                 }
                 break;
             case LOGIN_ACT:
@@ -436,11 +431,9 @@ public class MyActivity extends BaseActivity implements BaseView, View.OnClickLi
         drawerLayout.closeDrawers();
         switch (item.getItemId()) {
             case R.id.nav_upload_image:
-                if (ContextCompat.checkSelfPermission(MyActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(MyActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
-                } else {
-                    openAlbum();
-                }
+                PhotoPicker.builder()
+                        .setShowCamera(true)
+                        .start(MyActivity.this);
                 break;
             case R.id.nav_newDir:
                 NewDirDialog newDirDialog=new NewDirDialog(MyActivity.this);
@@ -449,23 +442,4 @@ public class MyActivity extends BaseActivity implements BaseView, View.OnClickLi
         return false;
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case 1:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    openAlbum();
-                } else {
-                    showToast("You denied the permission");
-                }
-                break;
-            default:
-        }
-    }
-
-    private void openAlbum() {
-        Intent intent = new Intent("android.intent.action.GET_CONTENT");
-        intent.setType("image/*");
-        startActivityForResult(intent, CHOOSE_PHOTO);
-    }
 }

@@ -19,7 +19,7 @@ import android.widget.TextView;
 import com.example.admin.ftptest.adapter.DirAdapter;
 import com.example.admin.ftptest.ftphelper.CallBackListener;
 
-import com.example.admin.ftptest.ftphelper.ListPathDirTask;
+import com.example.admin.ftptest.model.ListPathDirTask;
 
 import com.example.admin.ftptest.R;
 

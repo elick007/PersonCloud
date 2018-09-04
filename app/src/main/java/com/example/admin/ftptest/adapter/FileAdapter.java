@@ -125,13 +125,6 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.ViewHolder> {
                         mOnItemClickListener.onItemClick(holder.sortWayGroup, position); // 2
                     }
                 });
-//                holder.sortFileWayImage.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View view) {
-//                        int position = holder.getLayoutPosition(); // 1
-//                        mOnItemClickListener.onItemClick(holder.sortFileWayImage, position); // 2
-//                    }
-//                });
             }
             return;
         }
@@ -185,6 +178,7 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.ViewHolder> {
                     holder.itemView.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
+
                             //如果 是多选状态则进入多选点击操作
 
                             if (showCheckBox) {

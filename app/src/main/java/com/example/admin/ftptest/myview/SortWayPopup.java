@@ -10,8 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.PopupWindow;
 import android.widget.TextView;
-
-import com.example.admin.ftptest.MainActivity;
 import com.example.admin.ftptest.Presenter.ListFilesPresenter;
 import com.example.admin.ftptest.R;
 import com.example.admin.ftptest.view.MyActivity;
