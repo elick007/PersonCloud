@@ -120,6 +120,7 @@ public class MyActivity extends BaseActivity implements BaseView, View.OnClickLi
         //toolbar设置点击监听
         loginImage.setOnClickListener(this);
         refreshImage.setOnClickListener(this);
+        downloadManager.setOnClickListener(this);
         menuImage.setOnClickListener(this);
         //弹出框点击事件
         longClickChooseAll.setOnClickListener(this);
@@ -351,6 +352,7 @@ public class MyActivity extends BaseActivity implements BaseView, View.OnClickLi
                 }
                 break;
             case R.id.download_manage:
+                startActivity(new Intent(MyActivity.this,DownloadActivity.class));
                 break;
             case R.id.long_click_check_all:
                 // fileAdapter.setIsOnCheckChange(false);//取消CheckBox监听   、、取消之后再点击单独挑选不行，不够好

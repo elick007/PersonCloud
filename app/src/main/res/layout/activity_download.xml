@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="?android:attr/actionBarSize">
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?android:attr/actionBarSize"
+            app:navigationIcon="@drawable/back"
+            app:title="下载管理"/>
+    </android.support.design.widget.AppBarLayout>
+
+       <android.support.v4.view.ViewPager
+           android:id="@+id/view_pager"
+           android:layout_width="match_parent"
+           android:layout_height="0dp"
+           android:layout_weight="1">
+       </android.support.v4.view.ViewPager>
+    <android.support.design.widget.TabLayout
+        android:id="@+id/tablayout"
+        android:layout_width="match_parent"
+        android:layout_height="?android:attr/actionBarSize"
+        android:background="#d8d8d8"
+        app:tabIndicatorHeight="4dp"
+        app:tabIndicatorColor="@color/orange_main"
+        app:tabIndicatorGravity="top"
+        app:tabSelectedTextColor="#101010"
+        app:tabTextColor="#b0b0b0"
+        app:tabGravity="fill"
+        >
+        <android.support.design.widget.TabItem
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="正在下载"/>
+        <android.support.design.widget.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="下载完成"/>
+    </android.support.design.widget.TabLayout>
+</LinearLayout>

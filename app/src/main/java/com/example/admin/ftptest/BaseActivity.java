@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import com.example.admin.ftptest.utils.MyLogger;
+
 /**
  * Created by admin on 2018/5/5.
  */
