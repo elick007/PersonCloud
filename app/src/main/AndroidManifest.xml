@@ -30,7 +30,12 @@
         <activity
             android:name="me.iwf.photopicker.PhotoPagerActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
-        <activity android:name=".view.DownloadActivity"></activity>
+        <activity android:name=".view.DownloadActivity" />
+
+        <service
+            android:name=".services.DownloadService"
+            android:enabled="true"
+            android:exported="false"></service>
     </application>
 
 </manifest>

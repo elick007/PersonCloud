@@ -4,9 +4,12 @@ package com.example.admin.ftptest.view;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.ComponentName;
 import android.content.Intent;
-import android.content.pm.PackageManager;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
@@ -30,11 +33,14 @@ import com.example.admin.ftptest.Presenter.UpLoadPresenter;
 import com.example.admin.ftptest.adapter.FileAdapter;
 import com.example.admin.ftptest.Presenter.LoginPresenter;
 import com.example.admin.ftptest.R;
+import com.example.admin.ftptest.database.DownloadDBHelper;
+import com.example.admin.ftptest.ftphelper.CallBack;
 import com.example.admin.ftptest.ftphelper.FTPHelper;
 import com.example.admin.ftptest.ftphelper.ServiceState;
 import com.example.admin.ftptest.myview.NewDirDialog;
 import com.example.admin.ftptest.myview.RenameDialog;
 import com.example.admin.ftptest.myview.SortWayPopup;
+import com.example.admin.ftptest.services.DownloadService;
 import com.example.admin.ftptest.utils.AnimatorUtil;
 import com.example.admin.ftptest.utils.MyLogger;
 
@@ -95,14 +101,12 @@ public class MyActivity extends BaseActivity implements BaseView, View.OnClickLi
     private long exitTime = 0;//按键时间间隔
     private List<FTPFile> list = new ArrayList<>();
     private FileAdapter fileAdapter;//适配器
-    private boolean isSuccess = false;
     @SuppressLint("SimpleDateFormat")
     private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//转化时间为yyyy-MM-dd HH:mm:ss格式
     private StringBuilder currentPath = new StringBuilder();//路径名，当前为根目录
     private SortWayPopup sortWayPopup;
     private boolean isShowCheck = false;//是否显示checkBox
     private List<String> checkList = new ArrayList<>();//记录checkbox选择状态位置
-    public static final int CHOOSE_PHOTO = 2;//启动相册参数
     public static final int LOGIN_ACT=3;//启动登录活动界面
     private boolean safeClick;//防止多次点击
     @Override
@@ -113,6 +117,7 @@ public class MyActivity extends BaseActivity implements BaseView, View.OnClickLi
         initView();
         initRV();
         initRVListener();
+        initServiceBinder();
         MyLogger.setDebug();
     }
 
@@ -236,9 +241,9 @@ public class MyActivity extends BaseActivity implements BaseView, View.OnClickLi
                     } catch (IndexOutOfBoundsException e) {
                         e.printStackTrace();
                     }
-                    if (checkList.size() == 0) {
-                        dissmissAnimator();
-                    }
+//                    if (checkList.size() == 0) {
+//                        dissmissAnimator();
+//                    }
                 }
                 longClickFileCount.setText("已选中" + (checkList != null ? checkList.size() : 0) + "个");
                 Log.e("have", checkList.toString());
@@ -332,24 +337,33 @@ public class MyActivity extends BaseActivity implements BaseView, View.OnClickLi
                 startActivityForResult(new Intent(MyActivity.this, LoginActivity.class),LOGIN_ACT);
                 break;
             case R.id.refresh:
-                if (FTPHelper.getInstance().isConnected()){
-                    final ProgressDialog progressDialog=new ProgressDialog(MyActivity.this);
-                    progressDialog.setMessage("刷新中...");
-                    showDialog(progressDialog);
-                    Timer timer = new Timer();
-                    timer.schedule(new TimerTask() {
-                        @Override
-                        public void run() {
-                            progressDialog.dismiss();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (FTPHelper.getInstance().isConnected()){
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    final ProgressDialog progressDialog=new ProgressDialog(MyActivity.this);
+                                    progressDialog.setMessage("刷新中...");
+                                    showDialog(progressDialog);
+                                    Timer timer = new Timer();
+                                    timer.schedule(new TimerTask() {
+                                        @Override
+                                        public void run() {
+                                            progressDialog.dismiss();
+                                        }
+                                    }, 800);
+                                    ListFilesPresenter listFilesPresenter=new ListFilesPresenter(MyActivity.this,currentPath.toString());
+                                    listFilesPresenter.doListFiles();
+                                    Date date = new Date(System.currentTimeMillis());
+                                    footerRefreshTime.setText("列表更新于"+simpleDateFormat.format(date));
+                                }
+                            });
                         }
-                    }, 800);
-                    ListFilesPresenter listFilesPresenter=new ListFilesPresenter(MyActivity.this,currentPath.toString());
-                    listFilesPresenter.doListFiles();
-                    Date date = new Date(System.currentTimeMillis());
-                    footerRefreshTime.setText("列表更新于"+simpleDateFormat.format(date));
-                }else {
-                    showToast("当前未登录");
-                }
+                    }
+                }).start();
+
                 break;
             case R.id.download_manage:
                 startActivity(new Intent(MyActivity.this,DownloadActivity.class));
@@ -386,6 +400,26 @@ public class MyActivity extends BaseActivity implements BaseView, View.OnClickLi
                     showDialog(renameDialog);
                 }
                 break;
+            case R.id.long_click_check_download:
+                if (checkList.size()>0){
+                    //showToast(list.get(Integer.parseInt(checkList.get(0))-1).getName());
+                    servicesBinder.setLocalPath(MyActivity.this.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS).getPath());
+                    DownloadDBHelper downloadDBHelper=new DownloadDBHelper(MyActivity.this);
+                    for (String position:checkList){
+                        FTPFile ftpFile=list.get(Integer.valueOf(position)-1);
+                        downloadDBHelper.insertDownloadEntity(ftpFile);
+                        String fileName=ftpFile.getName();
+                        if (ftpFile.isDirectory()){
+                            servicesBinder.startDownDir(fileName);
+                        }else {
+                            servicesBinder.startDownFile(fileName);
+                        }
+                        showToast(currentPath+"/"+fileName);
+                    }
+                    showToast("已添加至下载列表");
+                }else {
+                    showToast("未选中");
+                }
         }
 
     }
@@ -405,7 +439,6 @@ public class MyActivity extends BaseActivity implements BaseView, View.OnClickLi
             case PhotoPicker.REQUEST_CODE:
                 if (resultCode==RESULT_OK&&data!=null){
                     ArrayList<String> arrayList=data.getStringArrayListExtra(PhotoPicker.KEY_SELECTED_PHOTOS);
-                    Log.e("photo picker", arrayList.toString());
                     new UpLoadPresenter(this,arrayList,currentPath.toString()).doUploadImage();
                 }
                 break;
@@ -443,5 +476,21 @@ public class MyActivity extends BaseActivity implements BaseView, View.OnClickLi
         }
         return false;
     }
+//绑定下载服务
+private DownloadService.ServicesBinder servicesBinder;
+    private void initServiceBinder(){
+        ServiceConnection serviceConnection=new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+                servicesBinder= (DownloadService.ServicesBinder) iBinder;
+            }
 
+            @Override
+            public void onServiceDisconnected(ComponentName componentName) {
+
+            }
+        };
+        Intent intent=new Intent(this,DownloadService.class);
+        this.bindService(intent,serviceConnection,BIND_AUTO_CREATE);
+    }
 }

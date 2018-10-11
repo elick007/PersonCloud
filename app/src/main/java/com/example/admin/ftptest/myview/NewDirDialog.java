@@ -44,7 +44,7 @@ public class NewDirDialog extends Dialog implements View.OnClickListener {
         lp.width = display.getWidth()*4/5; // 设置dialog宽度为屏幕的4/5
         getWindow().setAttributes(lp);
         setCanceledOnTouchOutside(false);// 点击Dialog外部消失
-        EditText title=contentView.findViewById(R.id.dialog_title);
+        TextView title=contentView.findViewById(R.id.dialog_title);
         title.setText("请输入新建文件名");
         TextView sure = contentView.findViewById(R.id.dialog_sure);
         TextView cancel = contentView.findViewById(R.id.dialog_cancel);

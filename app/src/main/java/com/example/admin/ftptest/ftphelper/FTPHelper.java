@@ -8,8 +8,11 @@ import org.apache.commons.net.ftp.FTPReply;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +27,6 @@ public class FTPHelper {
     private static FTPClient ftpClient;
     private String currentPath = "";
     private static FTPHelper singleTon = null;
-    private boolean isConnected = false;
 
     private FTPHelper() {
         hostName = ServiceState.host;
@@ -85,7 +87,6 @@ public class FTPHelper {
                 ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE);
                 MyLogger.d("Connect Success");
                 flag = true;
-                isConnected = true;
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -107,7 +108,7 @@ public class FTPHelper {
      * @return 判断是否连接
      */
     public boolean isConnected() {
-        return isConnected;
+        return ftpClient.isConnected();
     }
 
     /**
@@ -185,6 +186,64 @@ public class FTPHelper {
         return flag;
     }
 
+    /**
+     * 下载文件
+     * @param localPath
+     * @param remotePath
+     * @return
+     */
+    public boolean dowloadFile(String localPath, String remotePath) {
+        MyLogger.d("start down file "+remotePath);
+        boolean result=false;
+        if (isConnected()){
+            try {
+                FTPFile[] fileInfoArray = ftpClient.listFiles(remotePath);
+                if (fileInfoArray == null || fileInfoArray.length == 0) {
+                    throw new FileNotFoundException("File " + remotePath+ " was not found on FTP server.");
+                }
+                File localFile=new File(localPath+"/"+remotePath);
+                OutputStream outputStream=new FileOutputStream(localFile);
+                result=ftpClient.retrieveFile(remotePath,outputStream);
+                MyLogger.d("down result is "+result);
+                outputStream.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 下载文件夹
+     * @param localPath
+     * @param remotePath
+     */
+    public void downloadDir(String localPath,String remotePath){
+        MyLogger.d("start down dir");
+        File file=new File(localPath+"/"+remotePath);
+        if (!file.exists()){
+            boolean result=file.mkdir();
+            MyLogger.d("create "+file.getName()+" "+result);
+        }
+        try {
+            FTPFile[] ftpFiles=ftpClient.listFiles(remotePath);
+            for (int i=0;ftpFiles!=null&&i<ftpFiles.length;i++){
+                FTPFile ftpFile=ftpFiles[i];
+                if (ftpFile.isDirectory()&&!ftpFile.getName().equals(".")&&!ftpFile.getName().equals("..")){
+                    String nextPath=remotePath+"/"+ftpFile.getName();
+                    downloadDir(localPath,nextPath);
+                }else if (ftpFile.isFile()&&!ftpFile.getName().equals("..")){
+                    MyLogger.d("remote path"+remotePath+"/"+ftpFile.getName());
+                    MyLogger.d("local path"+localPath+"/"+remotePath+"/"+ftpFile.getName());
+                    dowloadFile(localPath,remotePath+"/"+ftpFile.getName());
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     /**
      * 删除文件
      *

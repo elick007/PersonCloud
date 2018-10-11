@@ -4,12 +4,9 @@ import android.os.AsyncTask;
 
 import com.example.admin.ftptest.Presenter.BasePresenter;
 import com.example.admin.ftptest.Presenter.UpLoadPresenter;
+import com.example.admin.ftptest.ftphelper.CallBack;
 import com.example.admin.ftptest.ftphelper.FTPHelper;
-import com.example.admin.ftptest.model.BaseModel;
 import com.example.admin.ftptest.utils.MyLogger;
-
-import java.io.File;
-import java.io.IOException;
 
 /**
  * Created by admin on 2018/5/23.
@@ -28,6 +25,7 @@ public class UploadTaskModel extends AsyncTask<String, Integer, Boolean> impleme
 
     @Override
     protected Boolean doInBackground(String... strings) {
+
         boolean result = false;
         if (FTPHelper.getInstance().isConnected()) {
             MyLogger.e("task is uploading");

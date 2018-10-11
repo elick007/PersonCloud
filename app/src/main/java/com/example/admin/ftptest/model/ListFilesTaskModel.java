@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 
 import com.example.admin.ftptest.Presenter.BasePresenter;
 import com.example.admin.ftptest.Presenter.ListFilesPresenter;
+import com.example.admin.ftptest.ftphelper.CallBack;
 import com.example.admin.ftptest.ftphelper.FTPHelper;
 import com.example.admin.ftptest.myview.SortWayPopup;
 import com.example.admin.ftptest.utils.MyLogger;
@@ -22,11 +23,11 @@ public class ListFilesTaskModel extends AsyncTask<String, Void, List<FTPFile>> i
         this.basePresenter = (ListFilesPresenter) basePresenter;
     }
 
-    private List<FTPFile> doListFiles(String path) {
-        if (FTPHelper.getInstance().isConnected()) {
+    private List<FTPFile> doListFiles(final String path) {
+        if (FTPHelper.getInstance().isConnected()){
             MyLogger.d("!!isConnect!! doListFiles ");
             return FTPHelper.getInstance().listFTPFile(path);
-        } else {
+        }else {
             MyLogger.d("!!is not Connect!! doListFiles fail");
             return null;
         }
