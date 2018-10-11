@@ -37,6 +37,7 @@ import com.example.admin.ftptest.database.DownloadDBHelper;
 import com.example.admin.ftptest.ftphelper.CallBack;
 import com.example.admin.ftptest.ftphelper.FTPHelper;
 import com.example.admin.ftptest.ftphelper.ServiceState;
+import com.example.admin.ftptest.myview.LoadingDialog;
 import com.example.admin.ftptest.myview.NewDirDialog;
 import com.example.admin.ftptest.myview.RenameDialog;
 import com.example.admin.ftptest.myview.SortWayPopup;
@@ -344,14 +345,13 @@ public class MyActivity extends BaseActivity implements BaseView, View.OnClickLi
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    final ProgressDialog progressDialog=new ProgressDialog(MyActivity.this);
-                                    progressDialog.setMessage("刷新中...");
-                                    showDialog(progressDialog);
+                                    final LoadingDialog loadingDialog=LoadingDialog.showDialog(MyActivity.this);
+                                    loadingDialog.show();
                                     Timer timer = new Timer();
                                     timer.schedule(new TimerTask() {
                                         @Override
                                         public void run() {
-                                            progressDialog.dismiss();
+                                            loadingDialog.cancel();
                                         }
                                     }, 800);
                                     ListFilesPresenter listFilesPresenter=new ListFilesPresenter(MyActivity.this,currentPath.toString());
@@ -400,9 +400,18 @@ public class MyActivity extends BaseActivity implements BaseView, View.OnClickLi
                     showDialog(renameDialog);
                 }
                 break;
+            case R.id.long_click_check_copy:
+                if (checkList.size()==1){
+                    servicesBinder.setLocalPath(MyActivity.this.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS).getPath());
+                    FTPFile ftpFile=list.get(Integer.valueOf(checkList.get(0))-1);
+                    String fileName=ftpFile.getName();
+                    servicesBinder.showPhoto(fileName);
+                    LoadingDialog loadingDialog=LoadingDialog.showDialog(MyActivity.this);
+                    loadingDialog.show();
+                }
+                break;
             case R.id.long_click_check_download:
                 if (checkList.size()>0){
-                    //showToast(list.get(Integer.parseInt(checkList.get(0))-1).getName());
                     servicesBinder.setLocalPath(MyActivity.this.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS).getPath());
                     DownloadDBHelper downloadDBHelper=new DownloadDBHelper(MyActivity.this);
                     for (String position:checkList){
@@ -420,6 +429,7 @@ public class MyActivity extends BaseActivity implements BaseView, View.OnClickLi
                 }else {
                     showToast("未选中");
                 }
+                break;
         }
 
     }

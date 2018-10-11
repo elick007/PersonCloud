@@ -3,14 +3,16 @@ package com.example.admin.ftptest.services;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
-
 import com.example.admin.ftptest.ftphelper.FTPHelper;
 import com.example.admin.ftptest.utils.MyLogger;
+import com.example.admin.ftptest.view.ShowPhotoActivity;
 
 public class DownloadService extends Service {
     private String localPath;
     private int MAX_THREAD = 3;
+    private Handler handler;
 
     public DownloadService() {
     }
@@ -26,6 +28,7 @@ public class DownloadService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         MyLogger.d("bind service suceess");
+        handler=new Handler(getMainLooper());
         return new ServicesBinder();
     }
 
@@ -37,11 +40,30 @@ public class DownloadService extends Service {
             }
         }).start();
     }
-    private void _startDownDir(final String remotePath){
+
+    private void _startDownDir(final String remotePath) {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                FTPHelper.getInstance().downloadDir(localPath,remotePath);
+                FTPHelper.getInstance().downloadDir(localPath, remotePath);
+            }
+        }).start();
+    }
+
+    private void _showPhoto(final String remotePath) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+if (FTPHelper.getInstance().dowloadFile(localPath,remotePath)){
+    handler.post(new Runnable() {
+        @Override
+        public void run() {
+            Intent intent=new Intent(DownloadService.this, ShowPhotoActivity.class);
+            intent.putExtra("path",localPath+"/"+remotePath);
+            DownloadService.this.startActivity(intent);
+        }
+    });
+}
             }
         }).start();
     }
@@ -54,8 +76,13 @@ public class DownloadService extends Service {
         public void startDownFile(String url) {
             _startDownFile(url);
         }
-        public void startDownDir(String url){
+
+        public void startDownDir(String url) {
             _startDownDir(url);
+        }
+
+        public void showPhoto(String url) {
+            _showPhoto(url);
         }
 
         public void pause(String fileName) {
